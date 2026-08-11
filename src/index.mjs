@@ -9,6 +9,7 @@ const options = getopts(process.argv.slice(2), {
     d: 'decrypt',
     i: 'inplace',
   },
+  boolean: ['help', 'decrypt', 'inplace'],
   default: {
     help: false,
     decrypt: false,
