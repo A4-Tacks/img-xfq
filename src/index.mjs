@@ -7,10 +7,12 @@ const options = getopts(process.argv.slice(2), {
   alias: {
     h: 'help',
     d: 'decrypt',
+    i: 'inplace',
   },
   default: {
     help: false,
     decrypt: false,
+    inplace: false,
   },
   unknown(name) {
     throw `unknown option: ${name}`
@@ -18,7 +20,7 @@ const options = getopts(process.argv.slice(2), {
 });
 
 if (options.help) {
-  console.log("Usage: img-xfq [-d | --decrypt] [FILE..]");
+  console.log("Usage: img-xfq [-d | --decrypt] [-i | --inplace] [FILE..]");
   process.exit(0)
 }
 
@@ -27,12 +29,12 @@ for (let file of options._) {
 }
 
 async function handle(imgname) {
-  const kind = options.decrypt ? '_xfqdec' : '_xfqenc';
+  const kind = options.inplace ? '' : options.decrypt ? '_xfqdec' : '_xfqenc';
   const newname = imgname.replace(/(\.[^.]+)?$/, suf => kind + suf);
   let img = sharp(imgname).raw();
   let {width, height, channels} = await img.metadata()
   console.log({imgname, width, height, channels, newname});
-  if (imgname == newname) throw `cannot gen name: ${imgname}`;
+  if (imgname == newname && !options.inplace) throw `cannot gen name: ${imgname}`;
 
   // 小番茄混淆的原逻辑, 改成了nodejs版本
   const curve = gilbert2d(width, height);
